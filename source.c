@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     int width = *(int*)&header[18];
     int height = *(int*)&header[22];
     int bitDepth = *(int*)&header[28];
+    int size = height*width * (bitDepth/8);
 
     printf("Width: %i, Height: %i\n", width, height);
 
@@ -31,17 +32,17 @@ int main(int argc, char *argv[])
         fread(colorTable, sizeof(unsigned char), 1024 , ptr_in);
     }
     
-    unsigned char buf[width*height];
+    unsigned char buf[size];
 
-    fread(buf, sizeof(unsigned char), (width*height), ptr_in);
+    fread(buf, sizeof(unsigned char), size, ptr_in);
 
     fwrite(header, sizeof(unsigned char), 54, ptr_out);
 
     if(bitDepth <= 8){
-        fwrite(colorTable, sizeof(unsigned char), 54, ptr_out);
+        fwrite(colorTable, sizeof(unsigned char), 1024, ptr_out);
     }
 
-    fwrite(buf, sizeof(unsigned char), (width*height), ptr_out);
+    fwrite(buf, sizeof(unsigned char), size, ptr_out);
 
     fclose(ptr_in);
     fclose(ptr_out);
