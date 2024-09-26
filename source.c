@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     }
 
     FILE *ptr_in = fopen(argv[1], "rb");
-    FILE *ptr_out = fopen("output.bmp", "w");
+    FILE *ptr_out = fopen("output.bmp", "wb");
 
     unsigned char header[54];
     unsigned char colorTable[1024];
@@ -25,8 +25,7 @@ int main(int argc, char *argv[])
     int height = *(int*)&header[22];
     int bitDepth = *(int*)&header[28];
     int size = height*width * (bitDepth/8);
-
-    printf("Width: %i, Height: %i\n", width, height);
+    int bytePerPixel = bitDepth/8;
 
     if(bitDepth <= 8){
         fread(colorTable, sizeof(unsigned char), 1024 , ptr_in);
@@ -40,6 +39,12 @@ int main(int argc, char *argv[])
 
     if(bitDepth <= 8){
         fwrite(colorTable, sizeof(unsigned char), 1024, ptr_out);
+    }
+    
+
+    for(int j = 0; j < size;j+=bytePerPixel){
+        int gray = buf[j] *.3 + buf[j+1] * .59 + buf[j+2] * .11;
+        buf[j] = buf[j+1] = buf[j+2] = gray;
     }
 
     fwrite(buf, sizeof(unsigned char), size, ptr_out);
